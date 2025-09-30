@@ -1,0 +1,1007 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Portfolio Builder</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-light: #818cf8;
+            --primary-dark: #4f46e5;
+            --secondary: #8b5cf6;
+            --accent: #06b6d4;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-400: #9ca3af;
+            --gray-500: #6b7280;
+            --gray-600: #4b5563;
+            --gray-700: #374151;
+            --gray-800: #1f2937;
+            --gray-900: #111827;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #f0f4ff 0%, #f8fafc 100%);
+        }
+
+        .sidebar {
+            background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+            box-shadow: 0 0 40px rgba(99, 102, 241, 0.1);
+            border-right: 1px solid rgba(99, 102, 241, 0.1);
+        }
+
+        .form-section {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+            border: 1px solid rgba(99, 102, 241, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .form-section:hover {
+            box-shadow: 0 8px 24px rgba(99, 102, 241, 0.08);
+            transform: translateY(-2px);
+        }
+
+        .form-section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--gray-800);
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(99, 102, 241, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--gray-700);
+            margin-bottom: 8px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--gray-200);
+            border-radius: 10px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            background: var(--gray-50);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+            background: white;
+        }
+
+        .template-option {
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .template-option:hover {
+            border-color: var(--primary);
+            transform: translateY(-4px);
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.2);
+        }
+
+        .template-option.selected {
+            border-color: var(--primary);
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.25);
+        }
+
+        .skill-tag {
+            transition: all 0.2s ease;
+        }
+
+        .skill-tag:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+        }
+
+        .file-upload-area {
+            border: 2px dashed var(--gray-300);
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .file-upload-area:hover {
+            border-color: var(--primary);
+            background: rgba(99, 102, 241, 0.05);
+        }
+
+        .file-upload-area.dragover {
+            border-color: var(--primary);
+            background: rgba(99, 102, 241, 0.1);
+        }
+
+        #save-button {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            border: none;
+            color: white;
+            padding: 16px 32px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+            justify-content: center;
+        }
+
+        #save-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.3);
+        }
+
+        #save-button:active {
+            transform: translateY(0);
+        }
+
+        #save-button.saving {
+            background: linear-gradient(135deg, var(--gray-400) 0%, var(--gray-500) 100%);
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        #save-button.success {
+            background: linear-gradient(135deg, var(--success) 0%, #059669 100%);
+        }
+
+        #save-button.error {
+            background: linear-gradient(135deg, var(--error) 0%, #dc2626 100%);
+        }
+
+        .status-message {
+            transition: all 0.3s ease;
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 14px;
+            margin-top: 12px;
+        }
+
+        .status-message.success {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            color: #065f46;
+        }
+
+        .status-message.error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            color: #991b1b;
+        }
+
+        .dashboard-container {
+            max-height: 100vh;
+            overflow-y: auto;
+        }
+
+        .dashboard-sidebar {
+            max-height: 100vh;
+            overflow-y: auto;
+        }
+
+        .dashboard-sidebar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .dashboard-sidebar::-webkit-scrollbar-track {
+            background: var(--gray-100);
+            border-radius: 3px;
+        }
+
+        .dashboard-sidebar::-webkit-scrollbar-thumb {
+            background: var(--gray-300);
+            border-radius: 3px;
+        }
+
+        .dashboard-sidebar::-webkit-scrollbar-thumb:hover {
+            background: var(--gray-400);
+        }
+
+        .character-counter {
+            transition: color 0.3s ease;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .form-section {
+            animation: fadeInUp 0.6s ease forwards;
+        }
+
+        .form-section:nth-child(1) { animation-delay: 0.1s; }
+        .form-section:nth-child(2) { animation-delay: 0.2s; }
+        .form-section:nth-child(3) { animation-delay: 0.3s; }
+        .form-section:nth-child(4) { animation-delay: 0.4s; }
+        .form-section:nth-child(5) { animation-delay: 0.5s; }
+        .form-section:nth-child(6) { animation-delay: 0.6s; }
+
+        .preview-frame {
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            background: white;
+        }
+
+        #preview-frame {
+            transition: opacity 0.3s ease;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <aside class="w-1/3 sidebar dashboard-sidebar p-8">
+            <form class="dashboard-container space-y-8">
+                <!-- Header -->
+                <div class="text-center mb-8">
+                    <div class="flex justify-between items-center mb-4">
+                        <div class="flex-1"></div>
+                        <div class="flex-1 text-center">
+                            <h1 class="text-3xl font-bold text-gray-800 mb-2">Portfolio Builder</h1>
+                        </div>
+                        <div class="flex-1 flex justify-end">
+                            <a href="{{ url_for('auth.logout') }}" 
+                               class="text-red-500 hover:text-red-700 transition-colors p-2 rounded-lg hover:bg-red-50"
+                               title="Logout">
+                                <i class="fas fa-sign-out-alt text-lg"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <p class="text-gray-600">Create your professional portfolio</p>
+                </div>
+
+                <!-- Template Selection -->
+                <div class="form-section">
+                    <h2 class="form-section-title">
+                        <i class="fas fa-palette text-purple-500"></i>
+                        Choose Template
+                    </h2>
+                    <div id="template-selector" class="grid grid-cols-2 gap-4 mb-4">
+                        <!-- Templates will be dynamically generated -->
+                    </div>
+                    <input type="hidden" id="template" name="template" value="1">
+                </div>
+
+                <!-- Personal Information -->
+                <div class="form-section">
+                    <h2 class="form-section-title">
+                        <i class="fas fa-user text-blue-500"></i>
+                        Personal Information
+                    </h2>
+                    <div class="space-y-4">
+                        <div>
+                            <label for="full_name" class="form-label">Full Name</label>
+                            <input type="text" id="full_name" name="full_name" class="form-input" placeholder="Enter your full name">
+                        </div>
+                        
+                        <div>
+                            <label for="company_name" class="form-label">Company Name (Optional)</label>
+                            <input type="text" id="company_name" name="company_name" class="form-input" placeholder="Current company">
+                        </div>
+                        
+                        <div>
+                            <label for="job_title" class="form-label">Job Title</label>
+                            <input type="text" id="job_title" name="job_title" class="form-input" placeholder="Your current position">
+                        </div>
+                        
+                        <div>
+                            <label for="bio" class="form-label">Bio</label>
+                            <textarea id="bio" name="bio" class="form-input resize-none" rows="4" maxlength="300" placeholder="Brief description about yourself..."></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- File Uploads -->
+                <div class="form-section">
+                    <h2 class="form-section-title">
+                        <i class="fas fa-upload text-green-500"></i>
+                        Files
+                    </h2>
+                    <div class="space-y-6">
+                        <!-- Profile Picture Upload -->
+                        <div>
+                            <label class="form-label">Profile Picture</label>
+                            <div class="file-upload-area p-6 text-center" id="profile-pic-area">
+                                <div class="mb-4">
+                                    <img id="profile_pic_preview" src="https://via.placeholder.com/120x120/e2e8f0/4a5568?text=Photo" alt="Profile Preview" class="w-24 h-24 rounded-full mx-auto object-cover border-4 border-white shadow-lg">
+                                </div>
+                                <i class="fas fa-camera text-2xl text-gray-400 mb-2"></i>
+                                <p class="text-sm text-gray-600 font-medium">Click to upload photo</p>
+                                <p class="text-xs text-gray-400 mt-1">PNG, JPG up to 5MB</p>
+                                <input type="file" id="profile_pic_upload" accept="image/*" class="hidden">
+                                <input type="hidden" id="profile_pic" name="profile_pic">
+                            </div>
+                        </div>
+
+                        <!-- Resume Upload -->
+                        <div>
+                            <label class="form-label">Resume/CV</label>
+                            <div class="file-upload-area p-6 text-center" id="resume-area">
+                                <i id="resume_icon" class="fas fa-file-pdf text-2xl text-gray-300 mb-2"></i>
+                                <p class="text-sm text-gray-600 font-medium">Upload Resume</p>
+                                <p class="text-xs text-gray-400 mt-1">PDF up to 10MB</p>
+                                <input type="file" id="resume_upload" accept=".pdf" class="hidden">
+                                <input type="hidden" id="resume_file" name="resume_file">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contact Information -->
+                <div class="form-section">
+                    <h2 class="form-section-title">
+                        <i class="fas fa-address-card text-indigo-500"></i>
+                        Contact Information
+                    </h2>
+                    <div class="space-y-4">
+                        <div>
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" id="email" name="email" class="form-input" placeholder="your@email.com">
+                        </div>
+                        
+                        <div>
+                            <label for="phone" class="form-label">Phone</label>
+                            <input type="tel" id="phone" name="phone" class="form-input" placeholder="+1 (555) 123-4567">
+                        </div>
+                        
+                        <div>
+                            <label for="linkedin_url" class="form-label">LinkedIn URL</label>
+                            <input type="url" id="linkedin_url" name="linkedin_url" class="form-input" placeholder="https://linkedin.com/in/yourprofile">
+                        </div>
+                        
+                        <div>
+                            <label for="github_url" class="form-label">GitHub URL</label>
+                            <input type="url" id="github_url" name="github_url" class="form-input" placeholder="https://github.com/yourusername">
+                        </div>
+                        
+                        <div>
+                            <label for="twitter_url" class="form-label">Twitter URL (Optional)</label>
+                            <input type="url" id="twitter_url" name="twitter_url" class="form-input" placeholder="https://twitter.com/yourusername">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Skills Section -->
+                <div class="form-section">
+                    <h2 class="form-section-title">
+                        <i class="fas fa-code text-orange-500"></i>
+                        Skills
+                    </h2>
+                    <div class="space-y-4">
+                        <div class="flex gap-2">
+                            <input type="text" id="skills_input" class="form-input flex-1" placeholder="Add a skill...">
+                            <button type="button" id="add-skill-btn" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors duration-200">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
+                        
+                        <div id="skills-container" class="flex flex-wrap gap-2 min-h-[40px] p-3 bg-gray-50 rounded-lg border">
+                            <!-- Skills will be added here dynamically -->
+                        </div>
+                        
+                        <input type="hidden" id="skills" name="skills">
+                    </div>
+                </div>
+
+                <!-- Projects Section -->
+                <div class="form-section">
+                    <h2 class="form-section-title">
+                        <i class="fas fa-project-diagram text-red-500"></i>
+                        Projects
+                    </h2>
+                    <div class="space-y-6">
+                        <!-- Project 1 -->
+                        <div class="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                            <h3 class="font-semibold text-gray-700 mb-3">Project 1</h3>
+                            <div class="space-y-3">
+                                <input type="text" id="project1_title" name="project1_title" class="form-input" placeholder="Project title">
+                                <input type="url" id="project1_link" name="project1_link" class="form-input" placeholder="Project URL">
+                                <textarea id="project1_desc" name="project1_desc" class="form-input resize-none" rows="3" maxlength="200" placeholder="Brief description..."></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Project 2 -->
+                        <div class="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                            <h3 class="font-semibold text-gray-700 mb-3">Project 2</h3>
+                            <div class="space-y-3">
+                                <input type="text" id="project2_title" name="project2_title" class="form-input" placeholder="Project title">
+                                <input type="url" id="project2_link" name="project2_link" class="form-input" placeholder="Project URL">
+                                <textarea id="project2_desc" name="project2_desc" class="form-input resize-none" rows="3" maxlength="200" placeholder="Brief description..."></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Project 3 -->
+                        <div class="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                            <h3 class="font-semibold text-gray-700 mb-3">Project 3</h3>
+                            <div class="space-y-3">
+                                <input type="text" id="project3_title" name="project3_title" class="form-input" placeholder="Project title">
+                                <input type="url" id="project3_link" name="project3_link" class="form-input" placeholder="Project URL">
+                                <textarea id="project3_desc" name="project3_desc" class="form-input resize-none" rows="3" maxlength="200" placeholder="Brief description..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Portfolio Actions Section -->
+                <div class="form-section text-center space-y-4">
+                    <button type="button" id="save-button">
+                        <i class="fa-solid fa-floppy-disk"></i>
+                        <span>Save Portfolio</span>
+                    </button>
+                    <p id="save-status" class="status-message mt-2"></p>
+                    
+                    <!-- Action Buttons -->
+                    <div class="flex gap-3 pt-4">
+                        <a href="{{ url_for('portfolio.view_portfolio', username=user.username) if user else '#' }}" 
+                           target="_blank" 
+                           class="flex-1 inline-flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-semibold rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl">
+                            <i class="fas fa-external-link-alt"></i>
+                            <span>View Live</span>
+                        </a>
+                        <a href="{{ url_for('auth.logout') }}" 
+                           class="flex-1 inline-flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-red-500 to-red-600 text-white font-semibold rounded-lg hover:from-red-600 hover:to-red-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl">
+                            <i class="fas fa-sign-out-alt"></i>
+                            <span>Logout</span>
+                        </a>
+                    </div>
+                    
+                    <!-- Share Link -->
+                    <div class="pt-4 border-t border-gray-200">
+                        <p class="text-xs text-gray-500">Share your portfolio: {{ request.host_url }}{{ user.username if user else 'your-username' }}</p>
+                    </div>
+                </div>
+            </form>
+        </aside>
+
+        <!-- Preview -->
+        <main class="w-2/3 bg-gray-200 p-8">
+            <!-- Main Content Header -->
+            <div class="flex justify-between items-center mb-6 bg-white rounded-lg p-4 shadow-sm">
+                <div>
+                    <h2 class="text-xl font-semibold text-gray-800">Live Preview</h2>
+                    <p class="text-sm text-gray-600">Welcome, {{ user.username if user else 'User' }}!</p>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <a href="{{ url_for('portfolio.view_portfolio', username=user.username) if user else '#' }}" 
+                       target="_blank"
+                       class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm transition-colors">
+                        <i class="fas fa-external-link-alt mr-2"></i>View Live
+                    </a>
+                    <a href="{{ url_for('auth.logout') }}" 
+                       class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm transition-colors">
+                        <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                    </a>
+                </div>
+            </div>
+            
+             <div class="preview-frame w-full h-full">
+                <iframe id="preview-frame" src="about:blank" class="w-full h-full border-0"></iframe>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Debounce function
+        function debounce(func, wait) {
+            let timeout;
+            return function(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        // Global form data collection function
+        function collectFormData() {
+            const selectedTemplate = document.querySelector('.template-option.selected');
+            const templateId = selectedTemplate ? selectedTemplate.getAttribute('data-template-id') : '1';
+            
+            const formData = {
+                template_id: templateId,
+                full_name: document.getElementById('full_name') ? document.getElementById('full_name').value : '',
+                company_name: document.getElementById('company_name') ? document.getElementById('company_name').value : '',
+                job_title: document.getElementById('job_title') ? document.getElementById('job_title').value : '',
+                bio: document.getElementById('bio') ? document.getElementById('bio').value : '',
+                profile_pic: document.getElementById('profile_pic') ? document.getElementById('profile_pic').value || '/static/images/default_avatar.svg' : '/static/images/default_avatar.svg',
+                resume_file: document.getElementById('resume_file') ? document.getElementById('resume_file').value || '#' : '#',
+                email: document.getElementById('email') ? document.getElementById('email').value : '',
+                phone: document.getElementById('phone') ? document.getElementById('phone').value : '',
+                linkedin_url: document.getElementById('linkedin_url') ? document.getElementById('linkedin_url').value : '',
+                github_url: document.getElementById('github_url') ? document.getElementById('github_url').value : '',
+                twitter_url: document.getElementById('twitter_url') ? document.getElementById('twitter_url').value : '',
+                skills: window.skills || [],
+                project1_title: document.getElementById('project1_title') ? document.getElementById('project1_title').value : '',
+                project1_link: document.getElementById('project1_link') ? document.getElementById('project1_link').value : '',
+                project1_desc: document.getElementById('project1_desc') ? document.getElementById('project1_desc').value : '',
+                project2_title: document.getElementById('project2_title') ? document.getElementById('project2_title').value : '',
+                project2_link: document.getElementById('project2_link') ? document.getElementById('project2_link').value : '',
+                project2_desc: document.getElementById('project2_desc') ? document.getElementById('project2_desc').value : '',
+                project3_title: document.getElementById('project3_title') ? document.getElementById('project3_title').value : '',
+                project3_link: document.getElementById('project3_link') ? document.getElementById('project3_link').value : '',
+                project3_desc: document.getElementById('project3_desc') ? document.getElementById('project3_desc').value : ''
+            };
+            
+            console.log('Form data being sent to preview:', formData);
+            return formData;
+        }
+
+        // Global preview function
+        const updatePreview = debounce(function() {
+            const formData = collectFormData();
+            
+            const previewFrame = document.getElementById('preview-frame');
+            if (!previewFrame) {
+                console.error('Preview frame not found');
+                return;
+            }
+            
+            previewFrame.style.opacity = '0.7';
+            
+            fetch('/preview', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.text();
+            })
+            .then(html => {
+                // Instead of blob URL, use srcdoc which maintains access to the server
+                previewFrame.srcdoc = html;
+                previewFrame.style.opacity = '1';
+            })
+            .catch(error => {
+                console.error('Error loading preview:', error);
+                previewFrame.style.opacity = '1';
+                previewFrame.srcdoc = `
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <title>Preview Error</title>
+                        <style>
+                            body { 
+                                font-family: Arial, sans-serif; 
+                                display: flex; 
+                                align-items: center; 
+                                justify-content: center; 
+                                height: 100vh; 
+                                margin: 0; 
+                                background: #f5f5f5; 
+                                color: #666;
+                            }
+                            .error-container { 
+                                text-align: center; 
+                                padding: 2rem;
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="error-container">
+                            <h2>Preview Unavailable</h2>
+                            <p>There was an error loading the preview.</p>
+                        </div>
+                    </body>
+                    </html>
+                `;
+                previewFrame.style.opacity = '1';
+            });
+        }, 500);
+
+        // Global initialization function for preview functionality
+        function initializePreview() {
+            const form = document.querySelector('.dashboard-container');
+            if (!form) {
+                console.error('Dashboard form not found');
+                return;
+            }
+            
+            const formElements = form.querySelectorAll('input, textarea, select');
+            formElements.forEach(element => {
+                element.addEventListener('input', updatePreview);
+                element.addEventListener('change', updatePreview);
+            });
+            
+            const skillsContainer = document.getElementById('skills-container');
+            if (skillsContainer) {
+                const skillsObserver = new MutationObserver(updatePreview);
+                skillsObserver.observe(skillsContainer, {
+                    childList: true,
+                    subtree: true
+                });
+            }
+            
+            setTimeout(updatePreview, 1000);
+        }
+
+        function initializeTemplates() {
+            const templateContainer = document.getElementById('template-selector');
+            if (!templateContainer) return;
+            
+            for (let i = 1; i <= 10; i++) {
+                const templateOption = document.createElement('div');
+                templateOption.className = `template-option cursor-pointer template-preview ${i === 1 ? 'selected' : ''}`;
+                templateOption.setAttribute('data-template-id', i);
+                
+                templateOption.innerHTML = `
+                    <img src="https://placehold.co/400x300/e2e8f0/4a5568?text=Template+${i}" alt="Template ${i}" class="w-full h-auto object-cover block">
+                    <div class="text-xs text-center py-2 bg-gray-50 text-gray-700 font-medium">Template ${i}</div>
+                `;
+                
+                templateOption.addEventListener('click', function() {
+                    document.querySelectorAll('.template-option').forEach(opt => {
+                        opt.classList.remove('selected');
+                    });
+                    this.classList.add('selected');
+                    
+                    const templateInput = document.getElementById('template');
+                    if (templateInput) {
+                        templateInput.value = i;
+                    }
+                    
+                    if (typeof updatePreview === 'function') {
+                        updatePreview();
+                    }
+                });
+                
+                templateContainer.appendChild(templateOption);
+            }
+        }
+
+        function initializeSkills() {
+            window.skills = [];
+            
+            const skillInput = document.getElementById('skills_input');
+            const addSkillBtn = document.getElementById('add-skill-btn');
+            const skillsContainer = document.getElementById('skills-container');
+            
+            if (!skillInput || !addSkillBtn || !skillsContainer) return;
+            
+            function addSkill(skillText) {
+                if (skillText && !window.skills.includes(skillText)) {
+                    window.skills.push(skillText);
+                    updateSkillsDisplay();
+                    updateSkillsInput();
+                }
+            }
+            
+            function removeSkill(skillText) {
+                const index = window.skills.indexOf(skillText);
+                if (index > -1) {
+                    window.skills.splice(index, 1);
+                    updateSkillsDisplay();
+                    updateSkillsInput();
+                }
+            }
+            
+            function updateSkillsDisplay() {
+                skillsContainer.innerHTML = '';
+                
+                window.skills.forEach(skill => {
+                    const skillElement = document.createElement('div');
+                    skillElement.className = 'skill-tag flex items-center px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm';
+                    skillElement.innerHTML = `
+                        <span>${skill}</span>
+                        <button type="button" onclick="window.removeSkill('${skill}')" class="ml-2 text-blue-600 hover:text-blue-800 focus:outline-none">
+                            <i class="fas fa-times text-xs"></i>
+                        </button>
+                    `;
+                    skillsContainer.appendChild(skillElement);
+                });
+            }
+            
+            function updateSkillsInput() {
+                const skillsInput = document.getElementById('skills');
+                if (skillsInput) {
+                    skillsInput.value = window.skills.join(', ');
+                }
+            }
+            
+            addSkillBtn.addEventListener('click', function() {
+                const skillText = skillInput.value.trim();
+                if (skillText) {
+                    addSkill(skillText);
+                    skillInput.value = '';
+                }
+            });
+            
+            skillInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    const skillText = skillInput.value.trim();
+                    if (skillText) {
+                        addSkill(skillText);
+                        skillInput.value = '';
+                    }
+                }
+            });
+            
+            window.removeSkill = removeSkill;
+        }
+
+        function initializeCharacterCounters() {
+            const textAreas = document.querySelectorAll('textarea[maxlength]');
+            
+            textAreas.forEach(textarea => {
+                const maxLength = parseInt(textarea.getAttribute('maxlength'));
+                const counter = document.createElement('div');
+                counter.className = 'character-counter text-xs text-gray-500 mt-1';
+                counter.textContent = `0/${maxLength}`;
+                
+                textarea.parentNode.appendChild(counter);
+                
+                textarea.addEventListener('input', function() {
+                    const currentLength = textarea.value.length;
+                    counter.textContent = `${currentLength}/${maxLength}`;
+                    
+                    if (currentLength > maxLength * 0.9) {
+                        counter.classList.add('text-orange-500');
+                    } else {
+                        counter.classList.remove('text-orange-500');
+                    }
+                    
+                    if (currentLength >= maxLength) {
+                        counter.classList.add('text-red-500');
+                    } else {
+                        counter.classList.remove('text-red-500');
+                    }
+                });
+                
+                textarea.dispatchEvent(new Event('input'));
+            });
+        }
+
+        function initializeScrollIndicator() {
+            const sidebar = document.querySelector('.dashboard-sidebar');
+            if (!sidebar) return;
+            
+            const scrollIndicator = document.createElement('div');
+            scrollIndicator.className = 'fixed right-4 top-1/2 transform -translate-y-1/2 w-1 bg-gray-200 rounded-full hidden lg:block';
+            scrollIndicator.style.height = '200px';
+            
+            const scrollThumb = document.createElement('div');
+            scrollThumb.className = 'w-full bg-blue-500 rounded-full transition-all duration-300';
+            scrollIndicator.appendChild(scrollThumb);
+            
+            document.body.appendChild(scrollIndicator);
+            
+            sidebar.addEventListener('scroll', function() {
+                const scrollPercentage = sidebar.scrollTop / (sidebar.scrollHeight - sidebar.clientHeight);
+                const thumbHeight = Math.max(20, (sidebar.clientHeight / sidebar.scrollHeight) * 200);
+                const thumbPosition = scrollPercentage * (200 - thumbHeight);
+                
+                scrollThumb.style.height = `${thumbHeight}px`;
+                scrollThumb.style.transform = `translateY(${thumbPosition}px)`;
+            });
+        }
+
+        function initializeSaveButton() {
+            const saveButton = document.getElementById('save-button');
+            const saveStatus = document.getElementById('save-status');
+            
+            if (!saveButton || !saveStatus) return;
+            
+            saveButton.addEventListener('click', function() {
+                const formData = collectFormData();
+                
+                saveButton.classList.add('saving');
+                saveButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>Saving...</span>';
+                saveStatus.textContent = '';
+                saveStatus.className = 'status-message';
+                
+                fetch('/save_portfolio', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        saveButton.classList.remove('saving');
+                        saveButton.classList.add('success');
+                        saveButton.innerHTML = '<i class="fas fa-check"></i><span>Saved Successfully!</span>';
+                        saveStatus.textContent = data.message || 'Your portfolio has been updated.';
+                        saveStatus.classList.add('success');
+                        
+                        setTimeout(() => {
+                            saveButton.classList.remove('success');
+                            saveButton.innerHTML = '<i class="fa-solid fa-floppy-disk"></i><span>Save Portfolio</span>';
+                            saveStatus.textContent = '';
+                            saveStatus.classList.remove('success');
+                        }, 3000);
+                    } else {
+                        throw new Error(data.message || 'Failed to save portfolio');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    saveButton.classList.remove('saving');
+                    saveButton.classList.add('error');
+                    saveButton.innerHTML = '<i class="fas fa-exclamation-triangle"></i><span>Error Saving</span>';
+                    saveStatus.textContent = error.message || 'There was an error saving your portfolio. Please try again.';
+                    saveStatus.classList.add('error');
+                    
+                    setTimeout(() => {
+                        saveButton.classList.remove('error');
+                        saveButton.innerHTML = '<i class="fa-solid fa-floppy-disk"></i><span>Save Portfolio</span>';
+                        saveStatus.textContent = '';
+                        saveStatus.classList.remove('error');
+                    }, 3000);
+                });
+            });
+        }
+
+        function initializeFileUploads() {
+            const fileUploadAreas = document.querySelectorAll('.file-upload-area');
+            
+            fileUploadAreas.forEach(area => {
+                const fileInput = area.querySelector('input[type="file"]');
+                if (fileInput) {
+                    fileInput.addEventListener('change', function() {
+                        handleFileUpload(this);
+                    });
+                    
+                    // Click to upload
+                    area.addEventListener('click', function() {
+                        fileInput.click();
+                    });
+                }
+            });
+            
+            function handleFileUpload(fileInput) {
+                if (fileInput.files.length > 0) {
+                    const file = fileInput.files[0];
+                    const fileSize = file.size;
+                    
+                    const maxSize = fileInput.id === 'profile_pic_upload' ? 5 * 1024 * 1024 : 10 * 1024 * 1024;
+                    if (fileSize > maxSize) {
+                        showMessage(`File size exceeds ${maxSize/(1024*1024)}MB limit`, 'error');
+                        return;
+                    }
+                    
+                    const formData = new FormData();
+                    formData.append('file', file);
+                    
+                    fetch('/upload', {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            if (fileInput.id === 'profile_pic_upload') {
+                                const reader = new FileReader();
+                                reader.onload = function(e) {
+                                    const preview = document.getElementById('profile_pic_preview');
+                                    if (preview) {
+                                        preview.src = e.target.result;
+                                    }
+                                };
+                                reader.readAsDataURL(file);
+                                const profilePicInput = document.getElementById('profile_pic');
+                                if (profilePicInput) {
+                                    profilePicInput.value = data.filepath;
+                                }
+                            }
+                            
+                            if (fileInput.id === 'resume_upload') {
+                                const resumeIcon = document.getElementById('resume_icon');
+                                const resumeText = document.querySelector('#resume-area .text-xs');
+                                const resumeFileInput = document.getElementById('resume_file');
+                                
+                                if (resumeIcon) {
+                                    resumeIcon.classList.remove('text-gray-300');
+                                    resumeIcon.classList.add('text-green-500');
+                                }
+                                if (resumeText) {
+                                    resumeText.textContent = 'Resume Uploaded';
+                                    resumeText.classList.remove('text-gray-400');
+                                    resumeText.classList.add('text-green-600');
+                                }
+                                if (resumeFileInput) {
+                                    resumeFileInput.value = data.filepath;
+                                }
+                            }
+                            
+                            showMessage('File uploaded successfully!', 'success');
+                            setTimeout(updatePreview, 500);
+                        } else {
+                            throw new Error(data.message || 'Upload failed');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Upload error:', error);
+                        showMessage(`Upload failed: ${error.message}`, 'error');
+                    });
+                }
+            }
+        }
+
+        function showMessage(message, type) {
+            const messageEl = document.createElement('div');
+            messageEl.className = `fixed top-4 right-4 px-4 py-2 rounded-lg text-white font-medium z-50 ${
+                type === 'success' ? 'bg-green-500' : 'bg-red-500'
+            }`;
+            messageEl.textContent = message;
+            
+            document.body.appendChild(messageEl);
+            
+            setTimeout(() => {
+                messageEl.remove();
+            }, 3000);
+        }
+
+        // Initialize everything when DOM is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeTemplates();
+            initializeSkills();
+            initializeFileUploads();
+            initializeCharacterCounters();
+            initializeScrollIndicator();
+            initializeSaveButton();
+            initializePreview();
+            
+            // Copy to clipboard function
+            window.copyToClipboard = function(text) {
+                navigator.clipboard.writeText(text).then(function() {
+                    const button = event.target.closest('button');
+                    const originalIcon = button.innerHTML;
+                    button.innerHTML = '<i class="fas fa-check"></i>';
+                    button.classList.add('text-green-500');
+                    
+                    setTimeout(() => {
+                        button.innerHTML = originalIcon;
+                        button.classList.remove('text-green-500');
+                    }, 2000);
+                }, function(err) {
+                    console.error('Could not copy text: ', err);
+                });
+            };
+        });
+    </script>
+</body>
+</html>

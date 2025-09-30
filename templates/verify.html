@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Account Verification - Portfolio Builder</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .fade-in { animation: fadeIn 0.6s ease-in-out; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+  <div class="min-h-screen flex items-center justify-center p-4">
+    <div class="w-full max-w-md bg-white p-8 rounded-2xl shadow-xl fade-in">
+
+      <!-- Page Header -->
+      <div class="text-center mb-6">
+        <h1 class="text-3xl font-bold text-gray-900">Verify Your Account</h1>
+        <p class="text-gray-600 mt-2">Please verify your email address to continue.</p>
+      </div>
+
+      <!-- Flash Messages -->
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, message in messages %}
+            <div class="mb-4 px-4 py-3 rounded-lg fade-in 
+              {{ 'bg-green-100 text-green-700' if category == 'success' else 
+                 'bg-red-100 text-red-700' if category == 'danger' else 
+                 'bg-blue-100 text-blue-700' }}" role="alert">
+              <span class="block sm:inline">{{ message }}</span>
+            </div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+
+      <!-- Email Verification Status -->
+      <div class="mb-8 p-4 bg-gray-50 rounded-lg">
+        <div class="flex justify-between items-center mb-2">
+          <h2 class="font-semibold">Email Verification</h2>
+          {% if email_verified %}
+            <span class="text-green-600"><i class="fas fa-check-circle"></i> Verified</span>
+          {% else %}
+            <form action="{{ url_for('email.resend_verification') }}" method="POST" class="inline">
+              <input type="hidden" name="type" value="email">
+              <button type="submit" class="text-indigo-600 text-sm hover:underline">
+                Resend Email
+              </button>
+            </form>
+          {% endif %}
+        </div>
+        <p class="text-sm text-gray-600">{{ email }}</p>
+        {% if not email_verified %}
+          <p class="text-sm text-gray-500 mt-2">
+            <i class="fas fa-info-circle"></i>
+            Check your email and click the verification link
+          </p>
+        {% endif %}
+      </div>
+
+      {% if email_verified %}
+        <a href="{{ url_for('auth.index') }}"
+          class="block w-full text-center py-3 px-4 bg-green-600 text-white rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+          Proceed to Login
+        </a>
+      {% else %}
+        <p class="text-center text-sm text-gray-600">
+          <i class="fas fa-info-circle"></i>
+          Please complete verification to continue
+        </p>
+      {% endif %}
+
+    </div>
+  </div>
+</body>
+</html>
