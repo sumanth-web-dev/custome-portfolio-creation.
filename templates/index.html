@@ -66,6 +66,18 @@
               Sign In
             </button>
           </div>
+          
+          <!-- Forgot Links -->
+          <div class="flex justify-between text-sm">
+            <a href="{{ url_for('auth.forgot_username') }}" 
+               class="text-indigo-600 hover:text-indigo-800 transition-colors">
+              Forgot Username?
+            </a>
+            <a href="{{ url_for('auth.forgot_password') }}" 
+               class="text-indigo-600 hover:text-indigo-800 transition-colors">
+              Forgot Password?
+            </a>
+          </div>
         </form>
 
         <!-- Registration Form -->

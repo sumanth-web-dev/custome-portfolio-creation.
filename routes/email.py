@@ -8,7 +8,7 @@ import os
 
 from models import db, User, Portfolio
 from utils.helpers import get_current_user
-from utils.email_sender import send_email_verification_email, build_verification_url
+from utils.email_sender import send_email_verification_email, build_verification_url, send_user_credentials_email
 
 email_bp = Blueprint('email', __name__)
 
@@ -53,6 +53,11 @@ def finalize_registration_from_session():
 
     db.session.add(new_portfolio)
     db.session.commit()
+
+    # Send user credentials via email after successful registration
+    original_password = reg.get('original_password')
+    if original_password:
+        send_user_credentials_email(new_user.email, new_user.username, original_password)
 
     session.pop('reg_temp', None)
     session.pop('email_token', None)

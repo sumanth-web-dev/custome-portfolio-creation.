@@ -4,10 +4,12 @@ from flask import (Blueprint, render_template, request, redirect,
 from datetime import datetime, timedelta
 from werkzeug.security import generate_password_hash
 from itsdangerous import URLSafeTimedSerializer
+import secrets
+import string
 
 from models import db, User
 from utils.helpers import get_current_user
-from utils.email_sender import send_email_verification_email
+from utils.email_sender import send_email_verification_email, send_forgot_username_email, send_forgot_password_email, send_user_credentials_email
 from flask_login import login_user,login_required,logout_user, current_user
 
 auth_bp = Blueprint('auth', __name__)
@@ -52,6 +54,7 @@ def register():
         temp = {
             'username': username,
             'password_hash': generate_password_hash(password),
+            'original_password': password,  # Store original password for email
             'is_admin': False,
             'phone': phone,
             'email': email,
@@ -93,7 +96,7 @@ def register():
         # Redirect to email verification page
         return redirect(url_for('email.verify'))
 
-    return render_template('register.html')
+    return render_template('index.html')
 
 @auth_bp.route('/login', methods=['POST'])
 def login():
@@ -116,6 +119,98 @@ def login():
     else:
         flash('Invalid username or password.', 'danger')
         return redirect(url_for('auth.index'))
+
+@auth_bp.route('/forgot-username', methods=['GET', 'POST'])
+def forgot_username():
+    """Handle forgot username requests"""
+    if request.method == 'POST':
+        email = request.form.get('email', '').strip()
+        
+        if not email:
+            flash('Email address is required.', 'danger')
+            return render_template('forgot_username.html')
+        
+        user = User.query.filter_by(email=email).first()
+        if user:
+            # Send username to email
+            email_sent = send_forgot_username_email(user.email, user.username)
+            if email_sent:
+                flash('Your username has been sent to your email address.', 'success')
+            else:
+                flash('Failed to send email. Please try again later.', 'danger')
+        else:
+            # Don't reveal if email exists or not for security
+            flash('If an account with that email exists, the username has been sent.', 'info')
+        
+        return redirect(url_for('auth.index'))
+    
+    return render_template('forgot_username.html')
+
+@auth_bp.route('/forgot-password', methods=['GET', 'POST'])
+def forgot_password():
+    """Handle forgot password requests"""
+    if request.method == 'POST':
+        email = request.form.get('email', '').strip()
+        
+        if not email:
+            flash('Email address is required.', 'danger')
+            return render_template('forgot_password.html')
+        
+        user = User.query.filter_by(email=email).first()
+        if user:
+            # Generate password reset token
+            serializer = get_serializer()
+            token = serializer.dumps(user.email, salt='password-reset-salt')
+            
+            # Send reset link to email
+            email_sent = send_forgot_password_email(user.email, token, user.username)
+            if email_sent:
+                flash('Password reset link has been sent to your email address.', 'success')
+            else:
+                flash('Failed to send email. Please try again later.', 'danger')
+        else:
+            # Don't reveal if email exists or not for security
+            flash('If an account with that email exists, a reset link has been sent.', 'info')
+        
+        return redirect(url_for('auth.index'))
+    
+    return render_template('forgot_password.html')
+
+@auth_bp.route('/reset-password/<token>', methods=['GET', 'POST'])
+def reset_password(token):
+    """Handle password reset with token"""
+    try:
+        serializer = get_serializer()
+        email = serializer.loads(token, salt='password-reset-salt', max_age=3600)  # 1 hour expiry
+    except:
+        flash('Invalid or expired reset link.', 'danger')
+        return redirect(url_for('auth.index'))
+    
+    user = User.query.filter_by(email=email).first()
+    if not user:
+        flash('Invalid reset link.', 'danger')
+        return redirect(url_for('auth.index'))
+    
+    if request.method == 'POST':
+        new_password = request.form.get('password', '').strip()
+        confirm_password = request.form.get('confirm_password', '').strip()
+        
+        if not new_password or len(new_password) < 6:
+            flash('Password must be at least 6 characters long.', 'danger')
+            return render_template('reset_password.html', token=token)
+        
+        if new_password != confirm_password:
+            flash('Passwords do not match.', 'danger')
+            return render_template('reset_password.html', token=token)
+        
+        # Update password
+        user.set_password(new_password)
+        db.session.commit()
+        
+        flash('Your password has been reset successfully. You can now log in.', 'success')
+        return redirect(url_for('auth.index'))
+    
+    return render_template('reset_password.html', token=token, user=user)
 
 
 @auth_bp.route('/logout')
